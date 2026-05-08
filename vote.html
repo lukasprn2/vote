@@ -1,142 +1,202 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Vote – Pétanque Boves</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="https://lukasprn2.github.io/petanque80/logo.png">
-  <style>
-    /* ── GRILLE CANDIDATS ─────────────────────────────────── */
-    .candidates-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 12px;
-      margin-bottom: 22px;
-    }
-    .candidate-card {
-      background: var(--black-mid);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 10px 13px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.15s;
-      user-select: none;
-      position: relative;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .candidate-card:active { transform: scale(0.95); }
-    .candidate-card.selected {
-      border-color: var(--green);
-      background: rgba(11,255,4,0.07);
-      box-shadow: 0 0 16px rgba(11,255,4,0.2);
-    }
-    .candidate-card.maxed:not(.selected) {
-      opacity: 0.3;
-      pointer-events: none;
-    }
-    .candidate-photo {
-      width: 80px; height: 80px;
-      border-radius: 50%; object-fit: cover;
-      margin: 0 auto 10px; display: block;
-      border: 3px solid var(--border);
-      background: var(--black-soft);
-      transition: border-color 0.15s;
-    }
-    .candidate-card.selected .candidate-photo { border-color: var(--green); box-shadow: 0 0 10px rgba(11,255,4,0.4); }
-    .candidate-name {
-      font-family: 'Oswald', sans-serif;
-      font-size: 14px; font-weight: 700;
-      color: var(--white); margin-bottom: 3px;
-    }
-    .candidate-role { font-size: 11px; color: var(--muted); line-height: 1.3; }
-    .check-mark {
-      position: absolute; top: 7px; right: 8px;
-      width: 24px; height: 24px;
-      background: var(--green); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity 0.14s;
-      font-size: 12px; font-weight: 900; color: var(--black);
-    }
-    .candidate-card.selected .check-mark { opacity: 1; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Vote – Pétanque Boves</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="https://lukasprn2.github.io/petanque80/logo.png">
+<style>
+/* ── GRILLE CANDIDATS ─────────────────────────────────── */
+.candidates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.candidate-card {
+  background: var(--black-mid);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 10px 13px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.candidate-card:active { transform: scale(0.95); }
+.candidate-card.selected {
+  border-color: var(--green);
+  background: rgba(11,255,4,0.07);
+  box-shadow: 0 0 16px rgba(11,255,4,0.2);
+}
+.candidate-card.maxed:not(.selected) {
+  opacity: 0.3;
+  pointer-events: none;
+}
+.candidate-photo {
+  width: 80px; height: 80px;
+  border-radius: 50%; object-fit: cover;
+  margin: 0 auto 10px; display: block;
+  border: 3px solid var(--border);
+  background: var(--black-soft);
+  transition: border-color 0.15s;
+}
+.candidate-card.selected .candidate-photo { border-color: var(--green); box-shadow: 0 0 10px rgba(11,255,4,0.4); }
+.candidate-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--white); margin-bottom: 3px;
+}
+.candidate-role { font-size: 11px; color: var(--muted); line-height: 1.3; }
+.check-mark {
+  position: absolute; top: 7px; right: 8px;
+  width: 24px; height: 24px;
+  background: var(--green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.14s;
+  font-size: 12px; font-weight: 900; color: var(--black);
+}
+.candidate-card.selected .check-mark { opacity: 1; }
 
-    /* ── INTRO ─────────────────────────────────────────────── */
-    .intro-screen { text-align: center; padding: 32px 16px 24px; }
-    .intro-logo {
-      width: 90px; height: 90px; object-fit: contain;
-      margin-bottom: 16px; border-radius: 50%;
-      border: 3px solid var(--green); padding: 5px;
-      background: var(--black-mid);
-      box-shadow: 0 0 24px rgba(11,255,4,0.25);
-    }
-    .intro-screen h2 {
-      font-family: 'Oswald', sans-serif;
-      font-size: 28px; font-weight: 700;
-      color: var(--green); margin-bottom: 7px;
-    }
-    .voter-progress {
-      background: var(--black-mid); border-radius: var(--radius);
-      padding: 14px 18px; margin: 16px auto;
-      max-width: 300px; border: 1px solid var(--border);
-    }
-    .vp-count {
-      font-family: 'Oswald', sans-serif; font-size: 30px; font-weight: 700;
-      color: var(--green); margin-bottom: 8px;
-    }
+/* ── INTRO ─────────────────────────────────────────────── */
+.intro-screen { text-align: center; padding: 32px 16px 24px; }
+.intro-logo {
+  width: 90px; height: 90px; object-fit: contain;
+  margin-bottom: 16px; border-radius: 50%;
+  border: 3px solid var(--green); padding: 5px;
+  background: var(--black-mid);
+  box-shadow: 0 0 24px rgba(11,255,4,0.25);
+}
+.intro-screen h2 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 28px; font-weight: 700;
+  color: var(--green); margin-bottom: 7px;
+}
+.voter-progress {
+  background: var(--black-mid); border-radius: var(--radius);
+  padding: 14px 18px; margin: 16px auto;
+  max-width: 300px; border: 1px solid var(--border);
+}
+.vp-count {
+  font-family: 'Oswald', sans-serif; font-size: 30px; font-weight: 700;
+  color: var(--green); margin-bottom: 8px;
+}
 
-    /* ── VOTE TOP BAR ──────────────────────────────────────── */
-    .vote-topbar {
-      display: flex; align-items: center; justify-content: space-between;
-      background: var(--black-mid); padding: 10px 16px;
-      border-radius: var(--radius-sm); margin-bottom: 16px;
-      border: 1px solid var(--border); border-top: 3px solid var(--green);
-    }
-    .vt-sel { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: var(--green); }
-    .vt-max { font-size: 12px; color: var(--muted); margin-top: 1px; }
-    .cancel-btn {
-      background: var(--black-soft); border: 1px solid var(--border);
-      color: var(--muted); padding: 7px 14px; border-radius: 20px;
-      cursor: pointer; font-size: 13px; font-family: 'Open Sans',sans-serif;
-      transition: all 0.14s;
-    }
-    .cancel-btn:hover { color: var(--white); border-color: #555; }
+/* ── VOTE TOP BAR ──────────────────────────────────────── */
+.vote-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--black-mid); padding: 10px 16px;
+  border-radius: var(--radius-sm); margin-bottom: 16px;
+  border: 1px solid var(--border); border-top: 3px solid var(--green);
+}
+.vt-sel { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: var(--green); }
+.vt-max { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.cancel-btn {
+  background: var(--black-soft); border: 1px solid var(--border);
+  color: var(--muted); padding: 7px 14px; border-radius: 20px;
+  cursor: pointer; font-size: 13px; font-family: 'Open Sans',sans-serif;
+  transition: all 0.14s;
+}
+.cancel-btn:hover { color: var(--white); border-color: #555; }
 
-    /* ── RECAP PILLS ────────────────────────────────────────── */
-    .recap-list {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      justify-content: center; margin-bottom: 20px; min-height: 32px;
-    }
-    .recap-pill {
-      background: rgba(11,255,4,0.12); color: var(--green);
-      border: 1px solid var(--green);
-      padding: 5px 12px; border-radius: 20px;
-      font-size: 12px; font-weight: 600;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .recap-pill img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+/* ── RECAP PILLS ────────────────────────────────────────── */
+.recap-list {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  justify-content: center; margin-bottom: 20px; min-height: 32px;
+}
+.recap-pill {
+  background: rgba(11,255,4,0.12); color: var(--green);
+  border: 1px solid var(--green);
+  padding: 5px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+}
+.recap-pill img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
 
-    /* ── DONE SCREEN ────────────────────────────────────────── */
-    .done-screen { text-align: center; padding: 36px 16px; }
-    .big-check {
-      width: 90px; height: 90px;
-      background: var(--green); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 18px; font-size: 44px; color: var(--black);
-      box-shadow: 0 0 30px rgba(11,255,4,0.5);
-    }
-    .next-voter-box {
-      background: var(--black-mid); border: 1px solid var(--border);
-      border-top: 4px solid var(--green);
-      border-radius: var(--radius); padding: 20px 32px;
-      margin: 20px auto; max-width: 420px;
-      font-family: 'Oswald', sans-serif; font-size: 24px; font-weight: 700;
-      box-shadow: 0 0 20px rgba(11,255,4,0.12);
-    }
-    .next-voter-box span { color: var(--green); }
-  </style>
+/* ── SUBMIT BTN STATES ──────────────────────────────────── */
+#submit-btn {
+  transition: all 0.2s;
+}
+#submit-btn.ready-to-vote {
+  background: var(--green) !important;
+  color: var(--black) !important;
+  animation: pulseBtn 0.6s ease-in-out 2;
+  font-size: 20px !important;
+  padding: 18px 60px !important;
+}
+@keyframes pulseBtn {
+  0%  { transform: scale(1); box-shadow: 0 0 0 0 rgba(11,255,4,0.5); }
+  50% { transform: scale(1.04); box-shadow: 0 0 0 12px rgba(11,255,4,0); }
+  100%{ transform: scale(1); box-shadow: 0 0 0 0 rgba(11,255,4,0); }
+}
+
+/* ── OVERLAY SUBMITTING ─────────────────────────────────── */
+#overlay-submitting {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 999;
+  align-items: center; justify-content: center;
+  flex-direction: column;
+  font-family: 'Oswald', sans-serif;
+  color: var(--green);
+  font-size: 28px;
+  text-align: center;
+}
+#overlay-submitting.show { display: flex; }
+.spinner {
+  width: 56px; height: 56px;
+  border: 5px solid rgba(11,255,4,0.2);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-bottom: 20px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── DONE SCREEN ────────────────────────────────────────── */
+.done-screen { text-align: center; padding: 36px 16px; }
+.big-check {
+  width: 90px; height: 90px;
+  background: var(--green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 18px; font-size: 44px; color: var(--black);
+  box-shadow: 0 0 30px rgba(11,255,4,0.5);
+}
+
+/* ── AUTO NEXT COUNTDOWN ────────────────────────────────── */
+.auto-next-box {
+  background: var(--black-mid); border: 1px solid var(--green);
+  border-radius: var(--radius); padding: 20px 32px;
+  margin: 20px auto; max-width: 420px;
+}
+.auto-next-count {
+  font-family: 'Oswald', sans-serif; font-size: 52px; font-weight: 700;
+  color: var(--green); line-height: 1;
+}
+.auto-next-label {
+  font-size: 13px; color: var(--muted); margin-top: 6px;
+}
+.auto-next-ring {
+  position: relative; display: inline-block; margin-bottom: 8px;
+}
+.auto-next-ring svg {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%) rotate(-90deg);
+  pointer-events: none;
+}
+</style>
 </head>
 <body>
+
+<!-- overlay soumission -->
+<div id="overlay-submitting">
+  <div class="spinner"></div>
+  Enregistrement du vote…
+</div>
 
 <header class="site-header">
   <div class="header-inner">
@@ -177,31 +237,22 @@
     <div class="vote-topbar">
       <div>
         <div class="vt-sel"><span id="sel-count">0</span> / <span id="sel-max">—</span> candidat(s)</div>
-        <div class="vt-max">Appuyez sur une photo pour sélectionner</div>
+        <div class="vt-max" id="vt-hint">Appuyez sur une photo pour sélectionner</div>
       </div>
       <button class="cancel-btn" onclick="cancelVote()">✕ Annuler</button>
     </div>
+
     <div id="candidates-grid" class="candidates-grid"></div>
+
     <div class="recap-list" id="recap-list"></div>
+
     <div style="text-align:center; padding-bottom:16px;">
-      <button class="btn btn-primary" id="submit-btn" onclick="goConfirm()" style="font-size:18px; padding:16px 52px;" disabled>
+      <button class="btn btn-primary" id="submit-btn" onclick="submitVote()" style="font-size:18px; padding:16px 52px;" disabled>
         ✅ Valider mon vote
       </button>
-    </div>
-  </div>
-
-  <!-- ═══ CONFIRMATION ════════════════════════════════════════════ -->
-  <div id="screen-confirm" class="hidden card" style="border:2px solid var(--green); box-shadow:0 0 24px rgba(11,255,4,0.15);">
-    <div style="text-align:center; padding:16px 8px;">
-      <p style="font-size:30px; margin-bottom:10px;">🗳️</p>
-      <h2 style="font-family:'Oswald',sans-serif; font-size:22px; color:var(--green); margin-bottom:8px;">Confirmez votre vote</h2>
-      <p style="color:var(--muted); margin-bottom:14px; font-size:14px;">Vous avez choisi :</p>
-      <div id="confirm-choices" class="recap-list" style="margin-bottom:16px;"></div>
-      <p style="font-size:13px; color:var(--danger); margin-bottom:20px; font-weight:600;">⚠️ Ce vote est définitif — impossible de le modifier ensuite.</p>
-      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-        <button class="btn btn-ghost" onclick="cancelConfirm()">← Modifier</button>
-        <button class="btn btn-primary" onclick="submitVote()" style="font-size:17px; padding:14px 40px;">✅ Confirmer</button>
-      </div>
+      <p id="submit-hint" style="font-size:12px; color:var(--muted); margin-top:8px; display:none;">
+        Vote en cours d'enregistrement…
+      </p>
     </div>
   </div>
 
@@ -211,9 +262,17 @@
       <div class="big-check">✓</div>
       <h2 style="font-family:'Oswald',sans-serif; font-size:26px; color:var(--green); margin-bottom:8px;">Vote enregistré !</h2>
       <p style="color:var(--muted); font-size:15px;">Merci pour votre participation.</p>
-      <div class="next-voter-box">À voter — <span>personne suivante</span></div>
-      <button class="btn btn-primary" onclick="nextVoter()" style="font-size:18px; padding:15px 48px;">
-        → Prochain votant
+
+      <div class="auto-next-box">
+        <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">Prochain votant dans</p>
+        <div class="auto-next-ring">
+          <div class="auto-next-count" id="auto-next-count">5</div>
+        </div>
+        <p class="auto-next-label">secondes — ou appuyez pour passer maintenant</p>
+      </div>
+
+      <button class="btn btn-primary" onclick="nextVoterNow()" style="font-size:18px; padding:15px 48px;">
+        → Prochain votant maintenant
       </button>
     </div>
   </div>
@@ -232,34 +291,36 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   DONNÉES PAR DÉFAUT (12 membres du bureau actuels)
-   Les candidats supplémentaires se gèrent depuis dashboard.html
+   DONNÉES PAR DÉFAUT (12 membres du bureau)
 ═══════════════════════════════════════════════════════════════ */
 const DEFAULT_CANDIDATES = [
-  { id:1,  name:'Manu',        role:'Président',             photo:'https://lukasprn2.github.io/petanque80/president.webp' },
-  { id:2,  name:'Dimitri',     role:'Vice-président',         photo:'https://lukasprn2.github.io/petanque80/dimitri.webp' },
-  { id:3,  name:'Clotilde',    role:'Secrétaire',             photo:'https://lukasprn2.github.io/petanque80/clotilde.webp' },
-  { id:4,  name:'Jean Pierre', role:'Trésorier',              photo:'https://lukasprn2.github.io/petanque80/tresorier.webp' },
-  { id:5,  name:'Vincent',     role:'Licences & Championnats',photo:'https://lukasprn2.github.io/petanque80/vincent.webp' },
-  { id:6,  name:'Denis',       role:'Vêtements',              photo:'https://lukasprn2.github.io/petanque80/denis.webp' },
-  { id:7,  name:'Virginie',    role:'Buvette',                photo:'https://lukasprn2.github.io/petanque80/virginie.webp' },
-  { id:8,  name:'Philippe D.', role:'Buvette',                photo:'https://lukasprn2.github.io/petanque80/philippe-d.webp' },
+  { id:1,  name:'Manu',        role:'Président',               photo:'https://lukasprn2.github.io/petanque80/president.webp' },
+  { id:2,  name:'Dimitri',     role:'Vice-président',           photo:'https://lukasprn2.github.io/petanque80/dimitri.webp' },
+  { id:3,  name:'Clotilde',    role:'Secrétaire',               photo:'https://lukasprn2.github.io/petanque80/clotilde.webp' },
+  { id:4,  name:'Jean Pierre', role:'Trésorier',                photo:'https://lukasprn2.github.io/petanque80/tresorier.webp' },
+  { id:5,  name:'Vincent',     role:'Licences & Championnats',  photo:'https://lukasprn2.github.io/petanque80/vincent.webp' },
+  { id:6,  name:'Denis',       role:'Vêtements',                photo:'https://lukasprn2.github.io/petanque80/denis.webp' },
+  { id:7,  name:'Virginie',    role:'Buvette',                  photo:'https://lukasprn2.github.io/petanque80/virginie.webp' },
+  { id:8,  name:'Philippe D.', role:'Buvette',                  photo:'https://lukasprn2.github.io/petanque80/philippe-d.webp' },
   { id:9,  name:'Eric',        role:'Inscriptions championnats',photo:'https://lukasprn2.github.io/petanque80/eric.webp' },
-  { id:10, name:'Philippe M.', role:'Membre',                 photo:'https://lukasprn2.github.io/petanque80/philippe-m.webp' },
-  { id:11, name:'Benoît',      role:'Membre',                 photo:'https://lukasprn2.github.io/petanque80/benoit.webp' },
-  { id:12, name:'Jean Marie',  role:'Entretien des terrains', photo:'https://lukasprn2.github.io/petanque80/jean-marie.webp' },
+  { id:10, name:'Philippe M.', role:'Membre',                   photo:'https://lukasprn2.github.io/petanque80/philippe-m.webp' },
+  { id:11, name:'Benoît',      role:'Membre',                   photo:'https://lukasprn2.github.io/petanque80/benoit.webp' },
+  { id:12, name:'Jean Marie',  role:'Entretien des terrains',   photo:'https://lukasprn2.github.io/petanque80/jean-marie.webp' },
 ];
 
 const STORAGE_KEY = 'pb_votes';
 const CONFIG_KEY  = 'pb_config';
 
-let cfg = { totalVoters:20, seats:12, pw:'boves2026', candidates:[...DEFAULT_CANDIDATES] };
+let cfg      = { totalVoters:20, seats:12, pw:'boves2026', candidates:[...DEFAULT_CANDIDATES] };
 let voteData = { votes:{}, voterCount:0 };
 let selected = new Set();
+let autoNextTimer  = null;
+let autoNextSecs   = 5;
+let submitLocked   = false; // évite double-submit
 
 /* ── STORAGE ─────────────────────────────────────────────────── */
 function loadData() {
-  try { const c = localStorage.getItem(CONFIG_KEY);  if (c) cfg      = JSON.parse(c); } catch(e){}
+  try { const c = localStorage.getItem(CONFIG_KEY); if (c) cfg = JSON.parse(c); } catch(e){}
   try { const v = localStorage.getItem(STORAGE_KEY); if (v) voteData = JSON.parse(v); } catch(e){}
 }
 
@@ -275,17 +336,19 @@ function updateIntro() {
 }
 
 function showScreen(id) {
-  ['screen-intro','screen-vote','screen-confirm','screen-done','screen-closed']
+  ['screen-intro','screen-vote','screen-done','screen-closed']
     .forEach(s => document.getElementById(s).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
 
 function startVote() {
   if (voteData.voterCount >= cfg.totalVoters) { showScreen('screen-closed'); return; }
-  selected = new Set();
+  selected     = new Set();
+  submitLocked = false;
   renderCandidates();
   document.getElementById('sel-max').textContent = cfg.seats;
   updateSelCount();
+  document.getElementById('vt-hint').textContent = 'Appuyez sur une photo pour sélectionner';
   showScreen('screen-vote');
 }
 
@@ -314,6 +377,7 @@ function renderCandidates() {
 }
 
 function toggle(id) {
+  if (submitLocked) return;
   if (selected.has(id)) {
     selected.delete(id);
   } else {
@@ -327,11 +391,50 @@ function toggle(id) {
   });
   updateSelCount();
   renderRecap();
+
+  /* ── AUTO-SUBMIT quand tous les sièges sont remplis ── */
+  if (selected.size === cfg.seats) {
+    triggerAutoSubmit();
+  } else {
+    // annuler si on dé-sélectionne
+    clearAutoSubmitState();
+  }
 }
 
 function updateSelCount() {
   document.getElementById('sel-count').textContent = selected.size;
-  document.getElementById('submit-btn').disabled   = selected.size === 0;
+  const btn = document.getElementById('submit-btn');
+  const full = selected.size === cfg.seats;
+  btn.disabled = selected.size === 0 || submitLocked;
+  if (full && !submitLocked) {
+    btn.classList.add('ready-to-vote');
+    btn.textContent = '🗳️ À VOTER';
+  } else {
+    btn.classList.remove('ready-to-vote');
+    btn.textContent = '✅ Valider mon vote';
+  }
+}
+
+function clearAutoSubmitState() {
+  const btn = document.getElementById('submit-btn');
+  btn.classList.remove('ready-to-vote');
+  btn.textContent = '✅ Valider mon vote';
+  document.getElementById('vt-hint').textContent = 'Appuyez sur une photo pour sélectionner';
+}
+
+function triggerAutoSubmit() {
+  /* Met à jour le hint et le bouton */
+  document.getElementById('vt-hint').textContent = '✅ Toutes les sélections faites — soumission automatique…';
+  const btn = document.getElementById('submit-btn');
+  btn.classList.add('ready-to-vote');
+  btn.textContent = '🗳️ À VOTER';
+
+  /* Soumet après une courte pause pour que l'utilisateur voie "À VOTER" */
+  setTimeout(() => {
+    if (selected.size === cfg.seats && !submitLocked) {
+      submitVote();
+    }
+  }, 800);
 }
 
 function renderRecap() {
@@ -346,32 +449,54 @@ function renderRecap() {
   });
 }
 
-/* ── CONFIRMATION ────────────────────────────────────────────── */
-function goConfirm() {
-  const box = document.getElementById('confirm-choices');
-  box.innerHTML = '';
-  selected.forEach(id => {
-    const c = cfg.candidates.find(x => x.id === id); if (!c) return;
-    const p = document.createElement('div');
-    p.className = 'recap-pill';
-    p.innerHTML = `<img src="${c.photo}" alt="${c.name}" style="width:26px;height:26px;border-radius:50%;object-fit:cover">
-                   <span>${c.name} — ${c.role}</span>`;
-    box.appendChild(p);
-  });
-  showScreen('screen-confirm');
-}
-function cancelConfirm() { showScreen('screen-vote'); }
-
+/* ── SOUMISSION DIRECTE (sans écran de confirmation) ─────────── */
 function submitVote() {
+  if (submitLocked || selected.size === 0) return;
+  submitLocked = true;
+
+  // Afficher overlay
+  document.getElementById('overlay-submitting').classList.add('show');
+
+  // Enregistrer immédiatement
   selected.forEach(id => { voteData.votes[id] = (voteData.votes[id]||0) + 1; });
   voteData.voterCount++;
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(voteData)); } catch(e){}
-  showScreen('screen-done');
+
+  // Légère pause visuelle (300ms) puis écran done
+  setTimeout(() => {
+    document.getElementById('overlay-submitting').classList.remove('show');
+    showDoneScreen();
+  }, 300);
 }
 
-function nextVoter() {
+/* ── ÉCRAN DONE avec compte à rebours auto ───────────────────── */
+function showDoneScreen() {
+  showScreen('screen-done');
+  autoNextSecs = 5;
+  updateAutoNextDisplay();
+  autoNextTimer = setInterval(() => {
+    autoNextSecs--;
+    updateAutoNextDisplay();
+    if (autoNextSecs <= 0) {
+      clearInterval(autoNextTimer);
+      nextVoterNow();
+    }
+  }, 1000);
+}
+
+function updateAutoNextDisplay() {
+  document.getElementById('auto-next-count').textContent = autoNextSecs;
+}
+
+function nextVoterNow() {
+  clearInterval(autoNextTimer);
   updateIntro();
-  showScreen(voteData.voterCount >= cfg.totalVoters ? 'screen-closed' : 'screen-intro');
+  if (voteData.voterCount >= cfg.totalVoters) {
+    showScreen('screen-closed');
+  } else {
+    /* Relance directement le vote — SANS passer par l'écran intro */
+    startVote();
+  }
 }
 
 /* ── INIT ────────────────────────────────────────────────────── */
