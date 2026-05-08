@@ -5,10 +5,10 @@
 //         → Ajouter une app Web → copier firebaseConfig
 // ════════════════════════════════════════════════════════════
 const FIREBASE_CONFIG = {
-  apiKey:            "VOTRE_API_KEY",
-  authDomain:        "VOTRE_PROJECT.firebaseapp.com",
-  projectId:         "VOTRE_PROJECT_ID",
-  storageBucket:     "VOTRE_PROJECT.appspot.com",
-  messagingSenderId: "VOTRE_SENDER_ID",
-  appId:             "VOTRE_APP_ID"
+  apiKey:            "AIzaSyAxWvLQzd5rR1Tw-TaAGZCThnpvqzD30LI",
+  authDomain:        "vote-ag-f7440.firebaseapp.com",
+  projectId:         "vote-ag-f7440",
+  storageBucket:     "vote-ag-f7440.firebasestorage.app",
+  messagingSenderId: "123559304778",
+  appId:             "1:123559304778:web:e1f15ca78b027c095e90b3"
 };
