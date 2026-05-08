@@ -1,256 +1,269 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Résultats en direct – Pétanque Boves</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="https://lukasprn2.github.io/petanque80/logo.png">
-  <style>
-    /* ─── RESULTS ────────────────────────────────────────────────────── */
-    .result-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: var(--white);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 18px;
-      margin-bottom: 10px;
-      transition: border-color 0.3s, box-shadow 0.3s;
-      animation: fadeSlide 0.4s ease forwards;
-    }
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .result-row.elected {
-      border-color: var(--accent);
-      box-shadow: 0 2px 16px rgba(232,184,75,0.18);
-    }
-    .result-rank {
-      font-family: 'Oswald', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--muted);
-      min-width: 28px;
-      text-align: center;
-    }
-    .result-rank.top { color: var(--accent); }
-    .result-photo {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2.5px solid var(--border);
-      flex-shrink: 0;
-      background: var(--light);
-    }
-    .result-row.elected .result-photo {
-      border-color: var(--accent);
-    }
-    .result-info { flex: 1; min-width: 0; }
-    .result-name {
-      font-family: 'Oswald', sans-serif;
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .result-role {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .result-bar-wrap {
-      width: 100%;
-      margin-top: 6px;
-    }
-    .result-numbers {
-      text-align: right;
-      min-width: 72px;
-    }
-    .result-votes {
-      font-family: 'Oswald', sans-serif;
-      font-size: 26px;
-      font-weight: 700;
-      color: var(--primary);
-      line-height: 1;
-    }
-    .result-pct {
-      font-size: 12px;
-      color: var(--muted);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résultats en direct – Pétanque Boves</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="https://lukasprn2.github.io/petanque80/logo.png">
+<style>
+/* ─── RESULTS ────────────────────────────────────────────────────── */
+.result-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.result-row.elected {
+  border-color: var(--accent);
+  box-shadow: 0 2px 16px rgba(232,184,75,0.18);
+}
+.result-row.flash-update {
+  animation: rowFlash 0.4s ease;
+}
+@keyframes rowFlash {
+  0%   { background: rgba(11,255,4,0.18); }
+  100% { background: var(--white); }
+}
+.result-rank {
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--muted);
+  min-width: 28px;
+  text-align: center;
+}
+.result-rank.top { color: var(--accent); }
+.result-photo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid var(--border);
+  flex-shrink: 0;
+  background: var(--light);
+}
+.result-row.elected .result-photo {
+  border-color: var(--accent);
+}
+.result-info { flex: 1; min-width: 0; }
+.result-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.result-role {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.result-bar-wrap {
+  width: 100%;
+  margin-top: 6px;
+}
+.result-numbers {
+  text-align: right;
+  min-width: 72px;
+}
+.result-votes {
+  font-family: 'Oswald', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+  transition: color 0.15s;
+}
+.result-votes.changed { color: var(--accent) !important; }
+.result-pct {
+  font-size: 12px;
+  color: var(--muted);
+}
 
-    /* HEADER BAND */
-    .live-band {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--primary);
-      color: var(--white);
-      padding: 10px 20px;
-      border-radius: var(--radius);
-      margin-bottom: 22px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .live-band h2 {
-      font-family: 'Oswald', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-    }
-    .live-band .controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .refresh-btn {
-      background: rgba(255,255,255,0.15);
-      border: none;
-      color: var(--white);
-      padding: 7px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 13px;
-      font-family: 'Open Sans', sans-serif;
-      font-weight: 600;
-      transition: background 0.15s;
-    }
-    .refresh-btn:hover { background: rgba(255,255,255,0.25); }
-    .auto-badge {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 700;
-    }
-    .auto-badge.on  { background: #d4edda; color: #155724; }
-    .auto-badge.off { background: #f8d7da; color: #721c24; }
+/* ── LIVE INDICATOR ──────────────────────────────────────── */
+.live-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--primary);
+  color: var(--white);
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.live-band h2 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex; align-items: center; gap: 10px;
+}
+.live-dot {
+  width: 10px; height: 10px;
+  background: #0bff04;
+  border-radius: 50%;
+  display: inline-block;
+  animation: livePulse 1s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%,100% { opacity:1; transform: scale(1); box-shadow: 0 0 0 0 rgba(11,255,4,0.6); }
+  50%     { opacity:0.8; transform: scale(1.25); box-shadow: 0 0 0 5px rgba(11,255,4,0); }
+}
 
-    /* ADMIN PANEL */
-    .admin-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-    @media(max-width:600px){ .admin-grid{ grid-template-columns:1fr; } }
+.live-band .controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.refresh-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: var(--white);
+  padding: 7px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.refresh-btn:hover { background: rgba(255,255,255,0.25); }
 
-    .admin-candidate-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .admin-candidate-row img {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1.5px solid var(--border);
-      flex-shrink: 0;
-      cursor: pointer;
-      transition: opacity 0.15s;
-    }
-    .admin-candidate-row img:hover { opacity: 0.75; }
-    .admin-candidate-row .admin-fields {
-      display: flex;
-      gap: 6px;
-      flex: 1;
-      flex-wrap: wrap;
-    }
-    .admin-candidate-row input {
-      flex: 1;
-      padding: 6px 10px;
-      font-size: 13px;
-    }
-    .photo-upload-btn {
-      background: none;
-      border: 1.5px dashed var(--border);
-      border-radius: 50%;
-      width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 16px; flex-shrink: 0;
-      transition: border-color 0.15s;
-    }
-    .photo-upload-btn:hover { border-color: var(--accent); }
-    /* hidden file inputs */
-    .ac-file-input { display: none; }
-    .icon-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 18px;
-      color: var(--muted);
-      padding: 4px;
-      border-radius: 4px;
-      transition: color 0.15s;
-    }
-    .icon-btn:hover { color: var(--danger); }
+/* LAST UPDATE */
+#last-update-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  font-family: 'Open Sans', sans-serif;
+}
 
-    /* TABS */
-    .tab-nav {
-      display: flex;
-      gap: 4px;
-      border-bottom: 1.5px solid var(--border);
-      margin-bottom: 24px;
-    }
-    .tab-btn {
-      padding: 10px 20px;
-      border: none;
-      background: none;
-      font-family: 'Open Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -1.5px;
-      transition: color 0.15s;
-    }
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--accent);
-    }
+/* ADMIN PANEL */
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media(max-width:600px){ .admin-grid{ grid-template-columns:1fr; } }
+.admin-candidate-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.admin-candidate-row img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.admin-candidate-row img:hover { opacity: 0.75; }
+.admin-candidate-row .admin-fields {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.admin-candidate-row input {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.ac-file-input { display: none; }
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--muted);
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.icon-btn:hover { color: var(--danger); }
 
-    /* PODIUM */
-    .podium-wrap {
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 12px;
-      margin: 28px 0;
-    }
-    .podium-col { text-align: center; }
-    .podium-photo {
-      width: 64px; height: 64px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--border);
-      margin-bottom: 6px;
-    }
-    .podium-name { font-family: 'Oswald', sans-serif; font-size: 13px; color: var(--primary); font-weight: 600; }
-    .podium-votes { font-size: 11px; color: var(--muted); }
-    .podium-block {
-      border-radius: 8px 8px 0 0;
-      min-height: 20px;
-    }
-    .podium-col:nth-child(1) .podium-block { background: var(--accent); height: 80px; }
-    .podium-col:nth-child(1) .podium-photo { border-color: var(--accent); width:72px; height:72px; }
-    .podium-col:nth-child(2) .podium-block { background: var(--primary); height: 60px; }
-    .podium-col:nth-child(2) .podium-photo { border-color: var(--primary); }
-    .podium-col:nth-child(3) .podium-block { background: #8c7a55; height: 44px; }
-    .podium-col:nth-child(3) .podium-photo { border-color: #8c7a55; }
+/* TABS */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1.5px solid var(--border);
+  margin-bottom: 24px;
+}
+.tab-btn {
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1.5px;
+  transition: color 0.15s;
+}
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--accent);
+}
 
-    /* PASSWORD */
-    #pw-screen {
-      max-width: 380px;
-      margin: 80px auto;
-      text-align: center;
-    }
-  </style>
+/* PODIUM */
+.podium-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  margin: 28px 0;
+}
+.podium-col { text-align: center; }
+.podium-photo {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border);
+  margin-bottom: 6px;
+}
+.podium-name { font-family: 'Oswald', sans-serif; font-size: 13px; color: var(--primary); font-weight: 600; }
+.podium-votes { font-size: 11px; color: var(--muted); }
+.podium-block {
+  border-radius: 8px 8px 0 0;
+  min-height: 20px;
+}
+.podium-col:nth-child(1) .podium-block { background: var(--accent); height: 80px; }
+.podium-col:nth-child(1) .podium-photo { border-color: var(--accent); width:72px; height:72px; }
+.podium-col:nth-child(2) .podium-block { background: var(--primary); height: 60px; }
+.podium-col:nth-child(2) .podium-photo { border-color: var(--primary); }
+.podium-col:nth-child(3) .podium-block { background: #8c7a55; height: 44px; }
+.podium-col:nth-child(3) .podium-photo { border-color: #8c7a55; }
+
+/* PASSWORD */
+#pw-screen {
+  max-width: 380px;
+  margin: 80px auto;
+  text-align: center;
+}
+
+/* VOTE COUNTER FLASH */
+#stat-voters.flash {
+  animation: numFlash 0.35s ease;
+}
+@keyframes numFlash {
+  0%   { color: var(--accent); transform: scale(1.15); }
+  100% { color: inherit; transform: scale(1); }
+}
+</style>
 </head>
 <body>
 
@@ -269,7 +282,8 @@
   <p style="font-size:32px; margin-bottom:12px;">🔐</p>
   <h2 style="font-family:'Oswald',sans-serif; font-size:22px; color:var(--primary); margin-bottom:8px;">Accès bureau</h2>
   <p style="color:var(--muted); margin-bottom:20px; font-size:14px;">Ce tableau de bord est réservé aux organisateurs.</p>
-  <input type="password" id="pw-input" placeholder="Mot de passe" style="margin-bottom:12px; text-align:center; letter-spacing:3px; font-size:18px;">
+  <input type="password" id="pw-input" placeholder="Mot de passe"
+         style="margin-bottom:12px; text-align:center; letter-spacing:3px; font-size:18px;">
   <br>
   <button class="btn btn-primary" onclick="checkPassword()" style="width:100%; margin-top:8px;">Accéder</button>
   <p id="pw-error" style="color:var(--danger); font-size:13px; margin-top:10px;" class="hidden">Mot de passe incorrect.</p>
@@ -278,152 +292,152 @@
 
 <!-- DASHBOARD -->
 <div id="dashboard" class="hidden">
-<main class="main-wrap">
-
-  <div class="tab-nav">
-    <button class="tab-btn active" onclick="showTab('tab-results')" id="btn-tab-results">📊 Résultats</button>
-    <button class="tab-btn" onclick="showTab('tab-admin')" id="btn-tab-admin">⚙️ Administration</button>
-  </div>
-
-  <!-- ─── ONGLET RÉSULTATS ─────────────────────────────────────────── -->
-  <div id="tab-results">
-
-    <div class="live-band">
-      <h2>📊 Résultats en direct</h2>
-      <div class="controls">
-        <span id="auto-badge" class="auto-badge on">🟢 Auto-refresh : ON</span>
-        <button class="refresh-btn" onclick="toggleAuto()">⏸ Pause</button>
-        <button class="refresh-btn" onclick="loadResults()">↻ Actualiser</button>
-      </div>
+  <main class="main-wrap">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="showTab('tab-results')" id="btn-tab-results">📊 Résultats</button>
+      <button class="tab-btn" onclick="showTab('tab-admin')" id="btn-tab-admin">⚙️ Administration</button>
     </div>
 
-    <!-- STATS -->
-    <div class="stats-grid" id="stats-grid">
-      <div class="stat-card">
-        <p class="stat-label">Votants</p>
-        <p class="stat-val" id="stat-voters">0</p>
-        <p class="stat-sub" id="stat-voters-sub">sur —</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-label">Participation</p>
-        <p class="stat-val" id="stat-pct">0%</p>
-        <p class="stat-sub">taux de participation</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-label">Sièges à élire</p>
-        <p class="stat-val" id="stat-seats">—</p>
-        <p class="stat-sub">candidats à élire</p>
-      </div>
-    </div>
+    <!-- ─── ONGLET RÉSULTATS ─────────────────────────────────────────── -->
+    <div id="tab-results">
 
-    <!-- PROGRESS GLOBAL -->
-    <div class="card" style="padding: 16px 20px; margin-bottom:20px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <span style="font-size:13px; font-weight:600; color:var(--primary);">Progression du scrutin</span>
-        <span style="font-size:13px; color:var(--muted);" id="progress-label">0 / 0</span>
-      </div>
-      <div class="progress-bar" style="height:12px;">
-        <div class="progress-fill" id="global-progress" style="width:0%;"></div>
-      </div>
-    </div>
-
-    <!-- PODIUM (top 3) -->
-    <div id="podium-section" class="card" style="padding:20px 16px; margin-bottom:20px;">
-      <h3 style="font-family:'Oswald',sans-serif; font-size:17px; color:var(--primary); margin-bottom:4px; text-align:center;">🏆 Top 3</h3>
-      <div class="podium-wrap" id="podium-wrap"></div>
-    </div>
-
-    <!-- RESULTS LIST -->
-    <div id="results-list"></div>
-
-    <!-- EXPORT -->
-    <div style="text-align:center; margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-      <button class="btn btn-secondary" onclick="exportCSV()">📥 Exporter CSV</button>
-      <button class="btn btn-secondary" onclick="printResults()">🖨️ Imprimer</button>
-      <a href="vote.html" class="btn btn-primary">🗳️ Page de vote</a>
-    </div>
-  </div>
-
-  <!-- ─── ONGLET ADMIN ──────────────────────────────────────────────── -->
-  <div id="tab-admin" class="hidden">
-
-    <div class="card">
-      <h3 class="section-title">⚙️ Paramètres du vote</h3>
-      <p class="section-sub">Ces réglages s'appliquent sur la page de vote.</p>
-      <div class="admin-grid" style="margin-bottom:14px;">
-        <div>
-          <label>Nombre total de votants</label>
-          <input type="number" id="cfg-total" value="12" min="1" max="200">
-        </div>
-        <div>
-          <label>Nombre de sièges à élire</label>
-          <input type="number" id="cfg-seats" value="5" min="1" max="20">
-        </div>
-        <div>
-          <label>Mot de passe dashboard</label>
-          <input type="text" id="cfg-pw" value="boves2026">
+      <div class="live-band">
+        <h2>
+          <span class="live-dot"></span>
+          Résultats en direct
+        </h2>
+        <div class="controls">
+          <span id="last-update-label">—</span>
+          <button class="refresh-btn" onclick="loadResults()">↻ Forcer</button>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="saveConfig()" style="font-size:14px;">💾 Sauvegarder</button>
+
+      <!-- STATS -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <p class="stat-label">Votants</p>
+          <p class="stat-val" id="stat-voters">0</p>
+          <p class="stat-sub" id="stat-voters-sub">sur —</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Participation</p>
+          <p class="stat-val" id="stat-pct">0%</p>
+          <p class="stat-sub">taux de participation</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Sièges à élire</p>
+          <p class="stat-val" id="stat-seats">—</p>
+          <p class="stat-sub">candidats à élire</p>
+        </div>
+      </div>
+
+      <!-- PROGRESS GLOBAL -->
+      <div class="card" style="padding: 16px 20px; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:13px; font-weight:600; color:var(--primary);">Progression du scrutin</span>
+          <span style="font-size:13px; color:var(--muted);" id="progress-label">0 / 0</span>
+        </div>
+        <div class="progress-bar" style="height:12px;">
+          <div class="progress-fill" id="global-progress" style="width:0%; transition: width 0.3s ease;"></div>
+        </div>
+      </div>
+
+      <!-- PODIUM (top 3) -->
+      <div id="podium-section" class="card" style="padding:20px 16px; margin-bottom:20px;">
+        <h3 style="font-family:'Oswald',sans-serif; font-size:17px; color:var(--primary); margin-bottom:4px; text-align:center;">🏆 Top 3</h3>
+        <div class="podium-wrap" id="podium-wrap"></div>
+      </div>
+
+      <!-- RESULTS LIST -->
+      <div id="results-list"></div>
+
+      <!-- EXPORT -->
+      <div style="text-align:center; margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="exportCSV()">📥 Exporter CSV</button>
+        <button class="btn btn-secondary" onclick="printResults()">🖨️ Imprimer</button>
+        <a href="vote.html" class="btn btn-primary">🗳️ Page de vote</a>
+      </div>
     </div>
 
-    <div class="card">
-      <h3 class="section-title">👥 Candidats</h3>
-      <p class="section-sub">Modifiez les noms, rôles. Cliquez sur la photo 📷 pour en choisir une depuis votre galerie.</p>
-      <div id="admin-candidates-list"></div>
-      <button class="btn btn-secondary" onclick="addCandidate()" style="font-size:13px; margin-top:8px;">+ Ajouter un candidat</button>
+    <!-- ─── ONGLET ADMIN ──────────────────────────────────────────────── -->
+    <div id="tab-admin" class="hidden">
+      <div class="card">
+        <h3 class="section-title">⚙️ Paramètres du vote</h3>
+        <p class="section-sub">Ces réglages s'appliquent sur la page de vote.</p>
+        <div class="admin-grid" style="margin-bottom:14px;">
+          <div>
+            <label>Nombre total de votants</label>
+            <input type="number" id="cfg-total" value="12" min="1" max="200">
+          </div>
+          <div>
+            <label>Nombre de sièges à élire</label>
+            <input type="number" id="cfg-seats" value="5" min="1" max="20">
+          </div>
+          <div>
+            <label>Mot de passe dashboard</label>
+            <input type="text" id="cfg-pw" value="boves2026">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveConfig()" style="font-size:14px;">💾 Sauvegarder</button>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">👥 Candidats</h3>
+        <p class="section-sub">Modifiez les noms, rôles. Cliquez sur la photo 📷 pour en choisir une depuis votre galerie.</p>
+        <div id="admin-candidates-list"></div>
+        <button class="btn btn-secondary" onclick="addCandidate()" style="font-size:13px; margin-top:8px;">+ Ajouter un candidat</button>
+      </div>
+
+      <div class="card" style="border: 1.5px solid #fcc; background:#fff8f8;">
+        <h3 style="font-family:'Oswald',sans-serif; font-size:16px; color:var(--danger); margin-bottom:8px;">⚠️ Zone dangereuse</h3>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Réinitialiser les votes efface définitivement tous les bulletins enregistrés.</p>
+        <button class="btn btn-danger" onclick="resetVotes()">🗑️ Réinitialiser tous les votes</button>
+      </div>
     </div>
 
-    <div class="card" style="border: 1.5px solid #fcc; background:#fff8f8;">
-      <h3 style="font-family:'Oswald',sans-serif; font-size:16px; color:var(--danger); margin-bottom:8px;">⚠️ Zone dangereuse</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Réinitialiser les votes efface définitivement tous les bulletins enregistrés.</p>
-      <button class="btn btn-danger" onclick="resetVotes()">🗑️ Réinitialiser tous les votes</button>
-    </div>
-
-  </div>
-
-</main>
+  </main>
 </div>
 
 <footer>
-  © 2026 – Club de Pétanque de Boves &nbsp;|&nbsp; Résultats actualisés automatiquement
+  © 2026 – Club de Pétanque de Boves &nbsp;|&nbsp; <span class="live-dot" style="width:7px;height:7px;vertical-align:middle;"></span> Résultats en temps réel
 </footer>
 
 <script>
-const STORAGE_KEY = 'pb_votes';
-const CONFIG_KEY  = 'pb_config';
-const DEFAULT_PW  = 'boves2026';
-
+const STORAGE_KEY      = 'pb_votes';
+const CONFIG_KEY       = 'pb_config';
+const DEFAULT_PW       = 'boves2026';
 const DEFAULT_CANDIDATES = [
-  { id:1,  name:'Manu',        role:'Président',            photo:'https://lukasprn2.github.io/petanque80/president.webp' },
-  { id:2,  name:'Dimitri',     role:'Vice-président',        photo:'https://lukasprn2.github.io/petanque80/dimitri.webp' },
-  { id:3,  name:'Clotilde',    role:'Secrétaire',            photo:'https://lukasprn2.github.io/petanque80/clotilde.webp' },
-  { id:4,  name:'Jean Pierre', role:'Trésorier',             photo:'https://lukasprn2.github.io/petanque80/tresorier.webp' },
-  { id:5,  name:'Vincent',     role:'Licences & Champ.',     photo:'https://lukasprn2.github.io/petanque80/vincent.webp' },
-  { id:6,  name:'Denis',       role:'Vêtements',             photo:'https://lukasprn2.github.io/petanque80/denis.webp' },
-  { id:7,  name:'Virginie',    role:'Buvette',               photo:'https://lukasprn2.github.io/petanque80/virginie.webp' },
-  { id:8,  name:'Philippe D.', role:'Buvette',               photo:'https://lukasprn2.github.io/petanque80/philippe-d.webp' },
-  { id:9,  name:'Eric',        role:'Inscriptions Champ.',   photo:'https://lukasprn2.github.io/petanque80/eric.webp' },
-  { id:10, name:'Philippe M.', role:'Membre',                photo:'https://lukasprn2.github.io/petanque80/philippe-m.webp' },
-  { id:11, name:'Benoît',      role:'Membre',                photo:'https://lukasprn2.github.io/petanque80/benoit.webp' },
-  { id:12, name:'Jean Marie',  role:'Entretien terrains',    photo:'https://lukasprn2.github.io/petanque80/jean-marie.webp' },
+  { id:1,  name:'Manu',        role:'Président',               photo:'https://lukasprn2.github.io/petanque80/president.webp' },
+  { id:2,  name:'Dimitri',     role:'Vice-président',           photo:'https://lukasprn2.github.io/petanque80/dimitri.webp' },
+  { id:3,  name:'Clotilde',    role:'Secrétaire',               photo:'https://lukasprn2.github.io/petanque80/clotilde.webp' },
+  { id:4,  name:'Jean Pierre', role:'Trésorier',                photo:'https://lukasprn2.github.io/petanque80/tresorier.webp' },
+  { id:5,  name:'Vincent',     role:'Licences & Champ.',        photo:'https://lukasprn2.github.io/petanque80/vincent.webp' },
+  { id:6,  name:'Denis',       role:'Vêtements',                photo:'https://lukasprn2.github.io/petanque80/denis.webp' },
+  { id:7,  name:'Virginie',    role:'Buvette',                  photo:'https://lukasprn2.github.io/petanque80/virginie.webp' },
+  { id:8,  name:'Philippe D.', role:'Buvette',                  photo:'https://lukasprn2.github.io/petanque80/philippe-d.webp' },
+  { id:9,  name:'Eric',        role:'Inscriptions Champ.',      photo:'https://lukasprn2.github.io/petanque80/eric.webp' },
+  { id:10, name:'Philippe M.', role:'Membre',                   photo:'https://lukasprn2.github.io/petanque80/philippe-m.webp' },
+  { id:11, name:'Benoît',      role:'Membre',                   photo:'https://lukasprn2.github.io/petanque80/benoit.webp' },
+  { id:12, name:'Jean Marie',  role:'Entretien terrains',       photo:'https://lukasprn2.github.io/petanque80/jean-marie.webp' },
 ];
 
-let cfg = { totalVoters:12, seats:5, pw: DEFAULT_PW, candidates: DEFAULT_CANDIDATES };
+let cfg      = { totalVoters:12, seats:5, pw: DEFAULT_PW, candidates: DEFAULT_CANDIDATES };
 let voteData = { votes:{}, voterCount:0 };
-let autoRefreshTimer = null;
-let autoOn = true;
 
-// ── AUTH ──────────────────────────────────────────────────────────────
+/* ── Cache pour détecter les changements ── */
+let _lastVoteSnapshot = '';
+let _pollTimer        = null;
+
+/* ── AUTH ──────────────────────────────────────────────────────────── */
 function checkPassword() {
   loadData();
-  const pw = document.getElementById('pw-input').value;
+  const pw      = document.getElementById('pw-input').value;
   const correct = cfg.pw || DEFAULT_PW;
   if (pw === correct) {
     document.getElementById('pw-screen').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
     loadResults();
-    startAutoRefresh();
+    startRealTimePolling();
     renderAdminCandidates();
     syncAdminForm();
   } else {
@@ -436,9 +450,9 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ── STORAGE ───────────────────────────────────────────────────────────
+/* ── STORAGE ───────────────────────────────────────────────────────── */
 function loadData() {
-  try { const c = localStorage.getItem(CONFIG_KEY);  if (c) cfg      = Object.assign({pw:DEFAULT_PW, candidates:DEFAULT_CANDIDATES}, JSON.parse(c)); } catch(e){}
+  try { const c = localStorage.getItem(CONFIG_KEY); if (c) cfg = Object.assign({pw:DEFAULT_PW, candidates:DEFAULT_CANDIDATES}, JSON.parse(c)); } catch(e){}
   try { const v = localStorage.getItem(STORAGE_KEY); if (v) voteData = JSON.parse(v); } catch(e){}
 }
 function saveVotes() {
@@ -448,7 +462,6 @@ function saveConfig() {
   cfg.totalVoters = parseInt(document.getElementById('cfg-total').value) || 12;
   cfg.seats       = parseInt(document.getElementById('cfg-seats').value) || 5;
   cfg.pw          = document.getElementById('cfg-pw').value || DEFAULT_PW;
-  // pull admin candidates
   const rows = document.querySelectorAll('.admin-cand-row');
   cfg.candidates = Array.from(rows).map(row => ({
     id:    parseInt(row.dataset.id),
@@ -461,14 +474,48 @@ function saveConfig() {
   loadResults();
 }
 
-// ── RESULTS ───────────────────────────────────────────────────────────
-function loadResults() {
-  loadData();
-  const total   = cfg.totalVoters;
-  const done    = voteData.voterCount;
-  const seats   = cfg.seats;
-  const pct     = total > 0 ? Math.round(done / total * 100) : 0;
+/* ══════════════════════════════════════════════════════════════════════
+   TEMPS RÉEL — deux mécanismes combinés :
+   1. window.addEventListener('storage') → instant cross-tab (même machine)
+   2. setInterval 200ms → même onglet + filet de sécurité
+══════════════════════════════════════════════════════════════════════ */
+function startRealTimePolling() {
+  /* Mécanisme 1 : événement storage (autre onglet/page) */
+  window.addEventListener('storage', (e) => {
+    if (e.key === STORAGE_KEY || e.key === CONFIG_KEY) {
+      checkAndRefresh();
+    }
+  });
 
+  /* Mécanisme 2 : polling ultra-rapide 200ms même onglet */
+  _pollTimer = setInterval(checkAndRefresh, 200);
+}
+
+function checkAndRefresh() {
+  const raw = localStorage.getItem(STORAGE_KEY) || '{}';
+  if (raw !== _lastVoteSnapshot) {
+    _lastVoteSnapshot = raw;
+    loadResults(true); /* true = avec flash animation */
+  }
+}
+
+/* ── AFFICHAGE DE L'HEURE PRÉCISE ─────────────────────────────────── */
+function nowLabel() {
+  const d = new Date();
+  return d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit', second:'2-digit' })
+    + '.' + String(d.getMilliseconds()).padStart(3,'0');
+}
+
+/* ── RESULTS ───────────────────────────────────────────────────────── */
+function loadResults(animated) {
+  loadData();
+  const total = cfg.totalVoters;
+  const done  = voteData.voterCount;
+  const seats = cfg.seats;
+  const pct   = total > 0 ? Math.round(done / total * 100) : 0;
+
+  /* Stats — flash le compteur si nouveau vote */
+  const prevVoters = parseInt(document.getElementById('stat-voters').textContent) || 0;
   document.getElementById('stat-voters').textContent     = done;
   document.getElementById('stat-voters-sub').textContent = 'sur ' + total;
   document.getElementById('stat-pct').textContent        = pct + '%';
@@ -476,14 +523,25 @@ function loadResults() {
   document.getElementById('progress-label').textContent  = done + ' / ' + total;
   document.getElementById('global-progress').style.width = pct + '%';
 
+  if (animated && done !== prevVoters) {
+    const el = document.getElementById('stat-voters');
+    el.classList.remove('flash');
+    void el.offsetWidth; // reflow
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 400);
+  }
+
+  /* Horodatage à la milliseconde */
+  document.getElementById('last-update-label').textContent = 'Dernière MAJ : ' + nowLabel();
+
   const sorted = [...cfg.candidates].sort((a,b)=>(voteData.votes[b.id]||0)-(voteData.votes[a.id]||0));
   const maxV   = sorted.length > 0 ? (voteData.votes[sorted[0].id]||0) : 1;
 
-  // PODIUM
+  /* PODIUM */
   const podium = document.getElementById('podium-wrap');
   podium.innerHTML = '';
-  const top3 = sorted.slice(0,3);
-  const order = [1,0,2]; // 2nd, 1st, 3rd
+  const top3  = sorted.slice(0,3);
+  const order = [1,0,2];
   order.forEach(i => {
     if (!top3[i]) return;
     const c  = top3[i];
@@ -500,64 +558,100 @@ function loadResults() {
     podium.appendChild(el);
   });
 
-  // LIST
+  /* LIST — mise à jour douce (pas de innerHTML global pour éviter le clignotement) */
   const list = document.getElementById('results-list');
-  list.innerHTML = '';
+
+  if (sorted.length === 0 || done === 0) {
+    list.innerHTML = '<div class="card" style="text-align:center; color:var(--muted); padding:40px;">Aucun vote enregistré pour le moment.</div>';
+    return;
+  }
+
   sorted.forEach((c, i) => {
     const v       = voteData.votes[c.id] || 0;
     const barPct  = maxV > 0 ? Math.round(v / maxV * 100) : 0;
     const turnout = done > 0 ? Math.round(v / done * 100) : 0;
     const elected = i < seats && v > 0;
-    const row     = document.createElement('div');
-    row.className = 'result-row' + (elected ? ' elected' : '');
-    row.innerHTML = `
-      <span class="result-rank${i < seats && v > 0 ? ' top' : ''}">${i+1}</span>
-      <img class="result-photo" src="${c.photo}" alt="${c.name}"
-           onerror="this.src='https://lukasprn2.github.io/petanque80/logo.webp'">
-      <div class="result-info">
-        <div class="result-name">
-          ${c.name}
-          ${elected ? '<span class="badge badge-elected">✓ Élu(e)</span>' : ''}
-        </div>
-        <div class="result-role">${c.role}</div>
-        <div class="result-bar-wrap">
-          <div class="progress-bar" style="height:6px; margin-top:6px;">
-            <div class="progress-fill" style="width:${barPct}%;"></div>
-          </div>
-        </div>
-      </div>
-      <div class="result-numbers">
-        <div class="result-votes">${v}</div>
-        <div class="result-pct">${turnout}%</div>
-      </div>
-    `;
-    list.appendChild(row);
+    const rowId   = 'row-cand-' + c.id;
+
+    let row = document.getElementById(rowId);
+
+    if (!row) {
+      /* Créer la ligne pour la première fois */
+      row = document.createElement('div');
+      row.id = rowId;
+      row.className = 'result-row' + (elected ? ' elected' : '');
+      row.innerHTML = buildRowHTML(c, i, v, barPct, turnout, elected, seats);
+      list.appendChild(row);
+    } else {
+      /* Mettre à jour les données existantes sans re-créer */
+      const prevVotes = parseInt(row.querySelector('.result-votes').textContent) || 0;
+
+      row.className = 'result-row' + (elected ? ' elected' : '');
+      row.querySelector('.result-rank').textContent = i+1;
+      row.querySelector('.result-rank').className   = 'result-rank' + (i < seats && v > 0 ? ' top' : '');
+      row.querySelector('.result-votes').textContent = v;
+      row.querySelector('.result-pct').textContent   = turnout + '%';
+      row.querySelector('.progress-fill').style.width = barPct + '%';
+
+      /* Badge élu */
+      let badge = row.querySelector('.badge-elected');
+      if (elected && !badge) {
+        const nameEl = row.querySelector('.result-name');
+        const b = document.createElement('span');
+        b.className = 'badge badge-elected';
+        b.textContent = '✓ Élu(e)';
+        nameEl.appendChild(b);
+      } else if (!elected && badge) {
+        badge.remove();
+      }
+
+      /* Flash si le nombre de voix a changé */
+      if (animated && v !== prevVotes) {
+        row.classList.remove('flash-update');
+        void row.offsetWidth;
+        row.classList.add('flash-update');
+        const vEl = row.querySelector('.result-votes');
+        vEl.classList.add('changed');
+        setTimeout(() => {
+          vEl.classList.remove('changed');
+          row.classList.remove('flash-update');
+        }, 500);
+      }
+    }
   });
-  if (sorted.length === 0 || done === 0) {
-    list.innerHTML = '<div class="card" style="text-align:center; color:var(--muted); padding:40px;">Aucun vote enregistré pour le moment.</div>';
-  }
+
+  /* Réordonner les lignes dans le DOM selon le nouveau classement */
+  sorted.forEach(c => {
+    const row = document.getElementById('row-cand-' + c.id);
+    if (row) list.appendChild(row); // déplace à la bonne position
+  });
 }
 
-// ── AUTO REFRESH ──────────────────────────────────────────────────────
-function startAutoRefresh() {
-  autoRefreshTimer = setInterval(loadResults, 4000);
-}
-function toggleAuto() {
-  autoOn = !autoOn;
-  if (autoOn) {
-    startAutoRefresh();
-    document.getElementById('auto-badge').textContent = '🟢 Auto-refresh : ON';
-    document.getElementById('auto-badge').className   = 'auto-badge on';
-    document.querySelector('.refresh-btn').textContent = '⏸ Pause';
-  } else {
-    clearInterval(autoRefreshTimer);
-    document.getElementById('auto-badge').textContent = '🔴 Auto-refresh : OFF';
-    document.getElementById('auto-badge').className   = 'auto-badge off';
-    document.querySelector('.refresh-btn').textContent = '▶ Reprendre';
-  }
+function buildRowHTML(c, i, v, barPct, turnout, elected, seats) {
+  return `
+    <span class="result-rank${i < seats && v > 0 ? ' top' : ''}">${i+1}</span>
+    <img class="result-photo" src="${c.photo}" alt="${c.name}"
+         onerror="this.src='https://lukasprn2.github.io/petanque80/logo.webp'">
+    <div class="result-info">
+      <div class="result-name">
+        ${c.name}
+        ${elected ? '<span class="badge badge-elected">✓ Élu(e)</span>' : ''}
+      </div>
+      <div class="result-role">${c.role}</div>
+      <div class="result-bar-wrap">
+        <div class="progress-bar" style="height:6px; margin-top:6px;">
+          <div class="progress-fill" style="width:${barPct}%; transition: width 0.3s ease;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="result-numbers">
+      <div class="result-votes">${v}</div>
+      <div class="result-pct">${turnout}%</div>
+    </div>
+  `;
 }
 
-// ── TABS ──────────────────────────────────────────────────────────────
+/* ── TABS ──────────────────────────────────────────────────────────── */
 function showTab(id) {
   ['tab-results','tab-admin'].forEach(t => {
     document.getElementById(t).classList.toggle('hidden', t !== id);
@@ -566,7 +660,7 @@ function showTab(id) {
   if (id === 'tab-admin') renderAdminCandidates();
 }
 
-// ── ADMIN ─────────────────────────────────────────────────────────────
+/* ── ADMIN ─────────────────────────────────────────────────────────── */
 function syncAdminForm() {
   document.getElementById('cfg-total').value = cfg.totalVoters;
   document.getElementById('cfg-seats').value = cfg.seats;
@@ -579,7 +673,7 @@ function renderAdminCandidates() {
   container.innerHTML = '';
   cfg.candidates.forEach(c => {
     const row = document.createElement('div');
-    row.className = 'admin-candidate-row';
+    row.className = 'admin-candidate-row admin-cand-row';
     row.dataset.id = c.id;
     row.innerHTML = `
       <div style="position:relative; flex-shrink:0; width:36px; height:36px;">
@@ -593,8 +687,8 @@ function renderAdminCandidates() {
                onchange="handlePhotoUpload(this, ${c.id})">
       </div>
       <div class="admin-fields">
-        <input class="ac-name" type="text" value="${c.name}" placeholder="Nom" style="max-width:140px;">
-        <input class="ac-role" type="text" value="${c.role}" placeholder="Rôle" style="max-width:160px;">
+        <input class="ac-name"  type="text" value="${c.name}"  placeholder="Nom"   style="max-width:140px;">
+        <input class="ac-role"  type="text" value="${c.role}"  placeholder="Rôle"  style="max-width:160px;">
         <input class="ac-photo" type="text" value="${c.photo}" placeholder="URL ou photo chargée" style="max-width:240px; font-size:11px; color:var(--muted);">
       </div>
       <button class="icon-btn" onclick="removeCandidate(${c.id})" title="Supprimer">🗑️</button>
@@ -606,26 +700,23 @@ function renderAdminCandidates() {
 function handlePhotoUpload(input, candidateId) {
   const file = input.files[0];
   if (!file) return;
-  // Resize & convert to base64
   const reader = new FileReader();
   reader.onload = function(e) {
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
-      const SIZE = 200; // max dimension
+      const SIZE = 200;
       let w = img.width, h = img.height;
       if (w > h) { h = Math.round(h * SIZE / w); w = SIZE; }
       else       { w = Math.round(w * SIZE / h); h = SIZE; }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-      // Update preview + hidden input
       const row = document.querySelector(`.admin-candidate-row[data-id="${candidateId}"]`);
       if (row) {
         row.querySelector('.ac-img-preview').src = dataUrl;
         row.querySelector('.ac-photo').value = dataUrl;
       }
-      // Update cfg in memory
       const cand = cfg.candidates.find(c => c.id === candidateId);
       if (cand) cand.photo = dataUrl;
     };
@@ -650,11 +741,12 @@ function resetVotes() {
   if (!confirm('⚠️ Réinitialiser TOUS les votes ? Cette action est irréversible.')) return;
   voteData = { votes:{}, voterCount:0 };
   saveVotes();
+  _lastVoteSnapshot = '';
   loadResults();
   alert('✅ Votes réinitialisés.');
 }
 
-// ── EXPORT ────────────────────────────────────────────────────────────
+/* ── EXPORT ────────────────────────────────────────────────────────── */
 function exportCSV() {
   loadData();
   const sorted = [...cfg.candidates].sort((a,b)=>(voteData.votes[b.id]||0)-(voteData.votes[a.id]||0));
@@ -671,13 +763,10 @@ function exportCSV() {
   a.click();
 }
 
-function printResults() {
-  window.print();
-}
+function printResults() { window.print(); }
 
-// ── INIT ──────────────────────────────────────────────────────────────
+/* ── INIT ──────────────────────────────────────────────────────────── */
 loadData();
 </script>
-
 </body>
 </html>
