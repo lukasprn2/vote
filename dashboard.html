@@ -151,17 +151,33 @@
       object-fit: cover;
       border: 1.5px solid var(--border);
       flex-shrink: 0;
+      cursor: pointer;
+      transition: opacity 0.15s;
     }
+    .admin-candidate-row img:hover { opacity: 0.75; }
     .admin-candidate-row .admin-fields {
       display: flex;
       gap: 6px;
       flex: 1;
+      flex-wrap: wrap;
     }
     .admin-candidate-row input {
       flex: 1;
       padding: 6px 10px;
       font-size: 13px;
     }
+    .photo-upload-btn {
+      background: none;
+      border: 1.5px dashed var(--border);
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 16px; flex-shrink: 0;
+      transition: border-color 0.15s;
+    }
+    .photo-upload-btn:hover { border-color: var(--accent); }
+    /* hidden file inputs */
+    .ac-file-input { display: none; }
     .icon-btn {
       background: none;
       border: none;
@@ -353,7 +369,7 @@
 
     <div class="card">
       <h3 class="section-title">👥 Candidats</h3>
-      <p class="section-sub">Modifiez les noms, rôles et URLs des photos.</p>
+      <p class="section-sub">Modifiez les noms, rôles. Cliquez sur la photo 📷 pour en choisir une depuis votre galerie.</p>
       <div id="admin-candidates-list"></div>
       <button class="btn btn-secondary" onclick="addCandidate()" style="font-size:13px; margin-top:8px;">+ Ajouter un candidat</button>
     </div>
@@ -566,17 +582,56 @@ function renderAdminCandidates() {
     row.className = 'admin-candidate-row';
     row.dataset.id = c.id;
     row.innerHTML = `
-      <img src="${c.photo}" alt="${c.name}"
-           onerror="this.src='https://lukasprn2.github.io/petanque80/logo.webp'">
+      <div style="position:relative; flex-shrink:0; width:36px; height:36px;">
+        <img class="ac-img-preview" src="${c.photo}" alt="${c.name}"
+             title="Cliquer pour changer la photo"
+             onerror="this.src='https://lukasprn2.github.io/petanque80/logo.webp'"
+             onclick="this.closest('.admin-candidate-row').querySelector('.ac-file-input').click()"
+             style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border);display:block;cursor:pointer;">
+        <span style="position:absolute;bottom:-2px;right:-2px;font-size:11px;background:var(--accent);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;pointer-events:none;">📷</span>
+        <input type="file" class="ac-file-input" accept="image/*" style="display:none"
+               onchange="handlePhotoUpload(this, ${c.id})">
+      </div>
       <div class="admin-fields">
         <input class="ac-name" type="text" value="${c.name}" placeholder="Nom" style="max-width:140px;">
         <input class="ac-role" type="text" value="${c.role}" placeholder="Rôle" style="max-width:160px;">
-        <input class="ac-photo" type="text" value="${c.photo}" placeholder="URL photo" style="max-width:280px;">
+        <input class="ac-photo" type="text" value="${c.photo}" placeholder="URL ou photo chargée" style="max-width:240px; font-size:11px; color:var(--muted);">
       </div>
       <button class="icon-btn" onclick="removeCandidate(${c.id})" title="Supprimer">🗑️</button>
     `;
     container.appendChild(row);
   });
+}
+
+function handlePhotoUpload(input, candidateId) {
+  const file = input.files[0];
+  if (!file) return;
+  // Resize & convert to base64
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const SIZE = 200; // max dimension
+      let w = img.width, h = img.height;
+      if (w > h) { h = Math.round(h * SIZE / w); w = SIZE; }
+      else       { w = Math.round(w * SIZE / h); h = SIZE; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      // Update preview + hidden input
+      const row = document.querySelector(`.admin-candidate-row[data-id="${candidateId}"]`);
+      if (row) {
+        row.querySelector('.ac-img-preview').src = dataUrl;
+        row.querySelector('.ac-photo').value = dataUrl;
+      }
+      // Update cfg in memory
+      const cand = cfg.candidates.find(c => c.id === candidateId);
+      if (cand) cand.photo = dataUrl;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function addCandidate() {
