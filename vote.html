@@ -2,231 +2,138 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vote Électronique – Pétanque Boves</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Vote – Pétanque Boves</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="https://lukasprn2.github.io/petanque80/logo.png">
   <style>
-    /* CANDIDATES GRID */
+    /* ── GRILLE CANDIDATS ─────────────────────────────────── */
     .candidates-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 14px;
-      margin-bottom: 28px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
     }
     .candidate-card {
-      background: var(--white);
-      border: 2.5px solid var(--border);
+      background: var(--black-mid);
+      border: 2px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px 12px 14px;
+      padding: 16px 10px 13px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.18s;
+      transition: all 0.15s;
       user-select: none;
       position: relative;
+      -webkit-tap-highlight-color: transparent;
     }
-    .candidate-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(26,58,92,0.12);
-    }
+    .candidate-card:active { transform: scale(0.95); }
     .candidate-card.selected {
-      border-color: var(--accent);
-      background: #fffbef;
-      box-shadow: 0 4px 18px rgba(232,184,75,0.25);
+      border-color: var(--green);
+      background: rgba(11,255,4,0.07);
+      box-shadow: 0 0 16px rgba(11,255,4,0.2);
     }
-    .candidate-card.disabled-card {
-      opacity: 0.45;
+    .candidate-card.maxed:not(.selected) {
+      opacity: 0.3;
       pointer-events: none;
     }
     .candidate-photo {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin: 0 auto 10px;
-      display: block;
+      width: 80px; height: 80px;
+      border-radius: 50%; object-fit: cover;
+      margin: 0 auto 10px; display: block;
       border: 3px solid var(--border);
-      background: var(--light);
-      transition: border-color 0.18s;
+      background: var(--black-soft);
+      transition: border-color 0.15s;
     }
-    .candidate-card.selected .candidate-photo {
-      border-color: var(--accent);
-    }
+    .candidate-card.selected .candidate-photo { border-color: var(--green); box-shadow: 0 0 10px rgba(11,255,4,0.4); }
     .candidate-name {
       font-family: 'Oswald', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 3px;
+      font-size: 14px; font-weight: 700;
+      color: var(--white); margin-bottom: 3px;
     }
-    .candidate-role {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.3;
-    }
+    .candidate-role { font-size: 11px; color: var(--muted); line-height: 1.3; }
     .check-mark {
-      position: absolute;
-      top: 8px;
-      right: 10px;
-      width: 26px;
-      height: 26px;
-      background: var(--accent);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.15s;
-      font-size: 14px;
+      position: absolute; top: 7px; right: 8px;
+      width: 24px; height: 24px;
+      background: var(--green); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.14s;
+      font-size: 12px; font-weight: 900; color: var(--black);
     }
     .candidate-card.selected .check-mark { opacity: 1; }
 
-    /* INTRO SCREEN */
-    .intro-screen {
-      text-align: center;
-      padding: 40px 20px;
-    }
+    /* ── INTRO ─────────────────────────────────────────────── */
+    .intro-screen { text-align: center; padding: 32px 16px 24px; }
     .intro-logo {
-      width: 90px;
-      height: 90px;
-      object-fit: contain;
-      margin-bottom: 20px;
-      border-radius: 50%;
-      border: 4px solid var(--accent);
-      padding: 6px;
-      background: var(--primary);
+      width: 90px; height: 90px; object-fit: contain;
+      margin-bottom: 16px; border-radius: 50%;
+      border: 3px solid var(--green); padding: 5px;
+      background: var(--black-mid);
+      box-shadow: 0 0 24px rgba(11,255,4,0.25);
     }
     .intro-screen h2 {
       font-family: 'Oswald', sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 8px;
-    }
-    .intro-screen p {
-      color: var(--muted);
-      font-size: 15px;
-      margin-bottom: 6px;
+      font-size: 28px; font-weight: 700;
+      color: var(--green); margin-bottom: 7px;
     }
     .voter-progress {
-      background: var(--light);
-      border-radius: var(--radius);
-      padding: 16px 20px;
-      margin: 20px auto;
-      max-width: 320px;
+      background: var(--black-mid); border-radius: var(--radius);
+      padding: 14px 18px; margin: 16px auto;
+      max-width: 300px; border: 1px solid var(--border);
     }
-    .voter-progress .vp-label {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-    .voter-progress .vp-count {
-      font-family: 'Oswald', sans-serif;
-      font-size: 26px;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 10px;
+    .vp-count {
+      font-family: 'Oswald', sans-serif; font-size: 30px; font-weight: 700;
+      color: var(--green); margin-bottom: 8px;
     }
 
-    /* CONFIRMATION SCREEN */
-    .confirm-screen {
-      text-align: center;
-      padding: 40px 20px;
-    }
-    .big-check {
-      width: 90px;
-      height: 90px;
-      background: var(--success);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 44px;
-    }
-    .next-voter-box {
-      background: var(--primary);
-      color: var(--white);
-      border-radius: var(--radius);
-      padding: 22px 32px;
-      margin: 24px auto;
-      max-width: 420px;
-      font-family: 'Oswald', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-    .next-voter-box span {
-      color: var(--accent);
-    }
-
-    /* CLOSED SCREEN */
-    .closed-screen {
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .closed-screen .big-icon {
-      font-size: 72px;
-      margin-bottom: 16px;
-    }
-
-    /* TOP BAR during vote */
+    /* ── VOTE TOP BAR ──────────────────────────────────────── */
     .vote-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--primary);
-      color: var(--white);
-      padding: 10px 20px;
-      border-radius: var(--radius-sm);
-      margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--black-mid); padding: 10px 16px;
+      border-radius: var(--radius-sm); margin-bottom: 16px;
+      border: 1px solid var(--border); border-top: 3px solid var(--green);
     }
-    .vote-topbar .vt-sel {
-      font-family: 'Oswald', sans-serif;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--accent);
+    .vt-sel { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: var(--green); }
+    .vt-max { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .cancel-btn {
+      background: var(--black-soft); border: 1px solid var(--border);
+      color: var(--muted); padding: 7px 14px; border-radius: 20px;
+      cursor: pointer; font-size: 13px; font-family: 'Open Sans',sans-serif;
+      transition: all 0.14s;
     }
-    .vote-topbar .vt-max {
-      font-size: 13px;
-      color: rgba(255,255,255,0.7);
-    }
+    .cancel-btn:hover { color: var(--white); border-color: #555; }
 
-    /* VOTE CHOICES RECAP */
+    /* ── RECAP PILLS ────────────────────────────────────────── */
     .recap-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 28px;
-      min-height: 36px;
+      display: flex; flex-wrap: wrap; gap: 6px;
+      justify-content: center; margin-bottom: 20px; min-height: 32px;
     }
     .recap-pill {
-      background: var(--primary);
-      color: var(--white);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      background: rgba(11,255,4,0.12); color: var(--green);
+      border: 1px solid var(--green);
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
     }
-    .recap-pill img {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
+    .recap-pill img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
 
-    .confirm-warning {
-      font-size: 13px;
-      color: var(--danger);
-      text-align: center;
-      margin-bottom: 12px;
+    /* ── DONE SCREEN ────────────────────────────────────────── */
+    .done-screen { text-align: center; padding: 36px 16px; }
+    .big-check {
+      width: 90px; height: 90px;
+      background: var(--green); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px; font-size: 44px; color: var(--black);
+      box-shadow: 0 0 30px rgba(11,255,4,0.5);
     }
+    .next-voter-box {
+      background: var(--black-mid); border: 1px solid var(--border);
+      border-top: 4px solid var(--green);
+      border-radius: var(--radius); padding: 20px 32px;
+      margin: 20px auto; max-width: 420px;
+      font-family: 'Oswald', sans-serif; font-size: 24px; font-weight: 700;
+      box-shadow: 0 0 20px rgba(11,255,4,0.12);
+    }
+    .next-voter-box span { color: var(--green); }
   </style>
 </head>
 <body>
@@ -236,141 +143,135 @@
     <img src="https://lukasprn2.github.io/petanque80/logo.webp" alt="Logo" class="header-logo">
     <div class="header-titles">
       <h1>Pétanque Boves</h1>
-      <p>Vote électronique du bureau</p>
+      <p>Isoloir — Vote électronique</p>
     </div>
   </div>
 </header>
 
 <main class="main-wrap">
 
-  <!-- ÉCRAN INTRO -->
+  <!-- ═══ INTRO ══════════════════════════════════════════════════ -->
   <div id="screen-intro" class="card">
     <div class="intro-screen">
       <img src="https://lukasprn2.github.io/petanque80/logo.webp" alt="Logo" class="intro-logo">
       <h2>Élection du Conseil</h2>
-      <p>Sélectionnez les membres que vous souhaitez<br>voir au bureau de votre club.</p>
+      <p style="color:var(--muted); font-size:15px; margin-bottom:4px;">Appuyez sur les photos des candidats de votre choix.</p>
+      <p id="intro-seats-info" style="font-size:14px; color:var(--white); font-weight:600; margin-bottom:14px;"></p>
       <div class="voter-progress">
-        <p class="vp-label">Progression du vote</p>
+        <p style="font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;">Votants</p>
         <p class="vp-count" id="intro-voter-count">— / —</p>
-        <div class="progress-bar">
+        <div class="progress-bar" style="margin-bottom:6px;">
           <div class="progress-fill" id="intro-progress" style="width:0%"></div>
         </div>
-        <p style="font-size:12px; color:var(--muted); margin-top:6px;" id="intro-seats-info">Vous pouvez voter pour — candidat(s)</p>
+        <p id="intro-remaining" style="font-size:12px; color:var(--muted);"></p>
       </div>
-      <button class="btn btn-primary" onclick="startVote()" style="font-size:18px; padding:16px 48px;" id="start-btn">
-        🗳️ Commencer le vote
+      <button class="btn btn-primary" onclick="startVote()" style="font-size:20px; padding:18px 56px; margin-bottom:12px;">
+        🗳️ Commencer mon vote
       </button>
-      <p style="font-size:12px; color:var(--muted); margin-top:16px;">Appuyez sur le bouton pour démarrer votre vote</p>
+      <p style="font-size:12px; color:var(--muted);">Appuyez sur le bouton pour démarrer</p>
     </div>
   </div>
 
-  <!-- ÉCRAN DE VOTE -->
+  <!-- ═══ VOTE ACTIF ══════════════════════════════════════════════ -->
   <div id="screen-vote" class="hidden">
     <div class="vote-topbar">
       <div>
-        <div class="vt-sel"><span id="sel-count">0</span> sélectionné(s)</div>
-        <div class="vt-max">Maximum : <span id="max-label">—</span> candidat(s)</div>
+        <div class="vt-sel"><span id="sel-count">0</span> / <span id="sel-max">—</span> candidat(s)</div>
+        <div class="vt-max">Appuyez sur une photo pour sélectionner</div>
       </div>
-      <button class="btn btn-secondary" onclick="cancelVote()" style="padding:8px 18px; font-size:13px; color:white; border-color:rgba(255,255,255,0.3);">
-        ✕ Annuler
-      </button>
+      <button class="cancel-btn" onclick="cancelVote()">✕ Annuler</button>
     </div>
     <div id="candidates-grid" class="candidates-grid"></div>
     <div class="recap-list" id="recap-list"></div>
-    <div class="confirm-warning hidden" id="confirm-warning">⚠️ Attention : ce vote sera définitif.</div>
-    <div style="text-align:center; margin-top:8px;">
-      <button class="btn btn-primary" id="submit-btn" onclick="confirmSubmit()" style="font-size:18px; padding:16px 52px;" disabled>
+    <div style="text-align:center; padding-bottom:16px;">
+      <button class="btn btn-primary" id="submit-btn" onclick="goConfirm()" style="font-size:18px; padding:16px 52px;" disabled>
         ✅ Valider mon vote
       </button>
     </div>
   </div>
 
-  <!-- MODAL DE CONFIRMATION -->
-  <div id="screen-confirm" class="hidden card" style="border: 3px solid var(--accent);">
-    <div style="text-align:center; padding: 20px 10px;">
-      <p style="font-size:32px; margin-bottom:12px;">🗳️</p>
-      <h2 style="font-family:'Oswald',sans-serif; font-size:22px; color:var(--primary); margin-bottom:10px;">Confirmez votre vote</h2>
-      <p style="color:var(--muted); margin-bottom:18px;">Vous avez voté pour :</p>
-      <div id="confirm-choices" class="recap-list" style="margin-bottom:20px;"></div>
-      <p style="font-size:13px; color:var(--danger); margin-bottom:20px; font-weight:600;">⚠️ Ce vote est définitif et ne peut pas être modifié.</p>
+  <!-- ═══ CONFIRMATION ════════════════════════════════════════════ -->
+  <div id="screen-confirm" class="hidden card" style="border:2px solid var(--green); box-shadow:0 0 24px rgba(11,255,4,0.15);">
+    <div style="text-align:center; padding:16px 8px;">
+      <p style="font-size:30px; margin-bottom:10px;">🗳️</p>
+      <h2 style="font-family:'Oswald',sans-serif; font-size:22px; color:var(--green); margin-bottom:8px;">Confirmez votre vote</h2>
+      <p style="color:var(--muted); margin-bottom:14px; font-size:14px;">Vous avez choisi :</p>
+      <div id="confirm-choices" class="recap-list" style="margin-bottom:16px;"></div>
+      <p style="font-size:13px; color:var(--danger); margin-bottom:20px; font-weight:600;">⚠️ Ce vote est définitif — impossible de le modifier ensuite.</p>
       <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-        <button class="btn btn-secondary" onclick="cancelConfirm()">← Modifier</button>
+        <button class="btn btn-ghost" onclick="cancelConfirm()">← Modifier</button>
         <button class="btn btn-primary" onclick="submitVote()" style="font-size:17px; padding:14px 40px;">✅ Confirmer</button>
       </div>
     </div>
   </div>
 
-  <!-- ÉCRAN MERCI -->
+  <!-- ═══ MERCI ════════════════════════════════════════════════════ -->
   <div id="screen-done" class="hidden card">
-    <div class="confirm-screen">
-      <div class="big-check">✅</div>
-      <h2 style="font-family:'Oswald',sans-serif; font-size:26px; color:var(--success); margin-bottom:8px;">Vote enregistré !</h2>
-      <p style="color:var(--muted); font-size:15px; margin-bottom:4px;">Merci pour votre participation.</p>
-      <div class="next-voter-box">
-        À voter — <span>personne suivante</span>
-      </div>
-      <button class="btn btn-primary" onclick="nextVoter()" style="font-size:17px; padding:14px 44px; margin-top:8px;">
+    <div class="done-screen">
+      <div class="big-check">✓</div>
+      <h2 style="font-family:'Oswald',sans-serif; font-size:26px; color:var(--green); margin-bottom:8px;">Vote enregistré !</h2>
+      <p style="color:var(--muted); font-size:15px;">Merci pour votre participation.</p>
+      <div class="next-voter-box">À voter — <span>personne suivante</span></div>
+      <button class="btn btn-primary" onclick="nextVoter()" style="font-size:18px; padding:15px 48px;">
         → Prochain votant
       </button>
     </div>
   </div>
 
-  <!-- ÉCRAN FIN -->
-  <div id="screen-closed" class="hidden card">
-    <div class="closed-screen">
-      <div class="big-icon">🏁</div>
-      <h2 style="font-family:'Oswald',sans-serif; font-size:26px; color:var(--primary); margin-bottom:12px;">Vote terminé !</h2>
-      <p style="color:var(--muted); font-size:15px; margin-bottom:20px;">Tous les membres ont voté. Les résultats sont disponibles.</p>
-      <a href="dashboard.html" class="btn btn-primary" style="font-size:16px;">📊 Voir les résultats</a>
-    </div>
+  <!-- ═══ FERMÉ ════════════════════════════════════════════════════ -->
+  <div id="screen-closed" class="hidden card" style="text-align:center; padding:56px 20px;">
+    <p style="font-size:68px; margin-bottom:14px;">🏁</p>
+    <h2 style="font-family:'Oswald',sans-serif; font-size:26px; color:var(--green); margin-bottom:10px;">Vote terminé !</h2>
+    <p style="color:var(--muted); font-size:15px; margin-bottom:22px;">Tous les membres ont voté. Consultez les résultats.</p>
+    <a href="dashboard.html" class="btn btn-primary" style="font-size:16px;">📊 Voir les résultats</a>
   </div>
 
 </main>
 
-<footer>
-  © 2026 – Club de Pétanque de Boves &nbsp;|&nbsp; Vote électronique sécurisé
-</footer>
+<footer>© 2026 – Club de Pétanque de Boves &nbsp;|&nbsp; Vote électronique sécurisé</footer>
 
 <script>
-// ── CONFIGURATION PAR DÉFAUT ──────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════════
+   DONNÉES PAR DÉFAUT (12 membres du bureau actuels)
+   Les candidats supplémentaires se gèrent depuis dashboard.html
+═══════════════════════════════════════════════════════════════ */
 const DEFAULT_CANDIDATES = [
-  { id: 1, name: 'Manu',        role: 'Président',        photo: 'https://lukasprn2.github.io/petanque80/president.webp' },
-  { id: 2, name: 'Dimitri',     role: 'Vice-président',   photo: 'https://lukasprn2.github.io/petanque80/dimitri.webp' },
-  { id: 3, name: 'Clotilde',    role: 'Secrétaire',       photo: 'https://lukasprn2.github.io/petanque80/clotilde.webp' },
-  { id: 4, name: 'Jean Pierre', role: 'Trésorier',        photo: 'https://lukasprn2.github.io/petanque80/tresorier.webp' },
-  { id: 5, name: 'Vincent',     role: 'Licences & Champ.', photo: 'https://lukasprn2.github.io/petanque80/vincent.webp' },
-  { id: 6, name: 'Denis',       role: 'Vêtements',        photo: 'https://lukasprn2.github.io/petanque80/denis.webp' },
-  { id: 7, name: 'Virginie',    role: 'Buvette',          photo: 'https://lukasprn2.github.io/petanque80/virginie.webp' },
-  { id: 8, name: 'Philippe D.', role: 'Buvette',          photo: 'https://lukasprn2.github.io/petanque80/philippe-d.webp' },
-  { id: 9, name: 'Eric',        role: 'Inscriptions Champ.', photo: 'https://lukasprn2.github.io/petanque80/eric.webp' },
-  { id: 10, name: 'Philippe M.',role: 'Membre',           photo: 'https://lukasprn2.github.io/petanque80/philippe-m.webp' },
-  { id: 11, name: 'Benoît',     role: 'Membre',           photo: 'https://lukasprn2.github.io/petanque80/benoit.webp' },
-  { id: 12, name: 'Jean Marie', role: 'Entretien terrains', photo: 'https://lukasprn2.github.io/petanque80/jean-marie.webp' },
+  { id:1,  name:'Manu',        role:'Président',             photo:'https://lukasprn2.github.io/petanque80/president.webp' },
+  { id:2,  name:'Dimitri',     role:'Vice-président',         photo:'https://lukasprn2.github.io/petanque80/dimitri.webp' },
+  { id:3,  name:'Clotilde',    role:'Secrétaire',             photo:'https://lukasprn2.github.io/petanque80/clotilde.webp' },
+  { id:4,  name:'Jean Pierre', role:'Trésorier',              photo:'https://lukasprn2.github.io/petanque80/tresorier.webp' },
+  { id:5,  name:'Vincent',     role:'Licences & Championnats',photo:'https://lukasprn2.github.io/petanque80/vincent.webp' },
+  { id:6,  name:'Denis',       role:'Vêtements',              photo:'https://lukasprn2.github.io/petanque80/denis.webp' },
+  { id:7,  name:'Virginie',    role:'Buvette',                photo:'https://lukasprn2.github.io/petanque80/virginie.webp' },
+  { id:8,  name:'Philippe D.', role:'Buvette',                photo:'https://lukasprn2.github.io/petanque80/philippe-d.webp' },
+  { id:9,  name:'Eric',        role:'Inscriptions championnats',photo:'https://lukasprn2.github.io/petanque80/eric.webp' },
+  { id:10, name:'Philippe M.', role:'Membre',                 photo:'https://lukasprn2.github.io/petanque80/philippe-m.webp' },
+  { id:11, name:'Benoît',      role:'Membre',                 photo:'https://lukasprn2.github.io/petanque80/benoit.webp' },
+  { id:12, name:'Jean Marie',  role:'Entretien des terrains', photo:'https://lukasprn2.github.io/petanque80/jean-marie.webp' },
 ];
+
 const STORAGE_KEY = 'pb_votes';
 const CONFIG_KEY  = 'pb_config';
 
-// ── STATE ─────────────────────────────────────────────────────────────
-let cfg = { totalVoters: 12, seats: 5, candidates: DEFAULT_CANDIDATES };
-let voteData = { votes: {}, voterCount: 0 };
+let cfg = { totalVoters:20, seats:12, pw:'boves2026', candidates:[...DEFAULT_CANDIDATES] };
+let voteData = { votes:{}, voterCount:0 };
 let selected = new Set();
 
-// ── STORAGE ───────────────────────────────────────────────────────────
+/* ── STORAGE ─────────────────────────────────────────────────── */
 function loadData() {
   try { const c = localStorage.getItem(CONFIG_KEY);  if (c) cfg      = JSON.parse(c); } catch(e){}
   try { const v = localStorage.getItem(STORAGE_KEY); if (v) voteData = JSON.parse(v); } catch(e){}
 }
-function saveVotes() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(voteData)); } catch(e){}
-}
 
-// ── INTRO ─────────────────────────────────────────────────────────────
+/* ── INTRO ───────────────────────────────────────────────────── */
 function updateIntro() {
-  const done = voteData.voterCount;
+  const done  = voteData.voterCount;
   const total = cfg.totalVoters;
+  const rem   = total - done;
   document.getElementById('intro-voter-count').textContent = done + ' / ' + total;
-  document.getElementById('intro-progress').style.width = Math.round(done/total*100) + '%';
-  document.getElementById('intro-seats-info').textContent = 'Vous pouvez voter pour ' + cfg.seats + ' candidat(s) maximum';
+  document.getElementById('intro-progress').style.width    = (total > 0 ? Math.round(done/total*100) : 0) + '%';
+  document.getElementById('intro-seats-info').textContent  = 'Vous pouvez voter pour ' + cfg.seats + ' candidat(s) maximum';
+  document.getElementById('intro-remaining').textContent   = rem > 0 ? rem + ' personne(s) restante(s)' : 'Tout le monde a voté !';
 }
 
 function showScreen(id) {
@@ -383,16 +284,14 @@ function startVote() {
   if (voteData.voterCount >= cfg.totalVoters) { showScreen('screen-closed'); return; }
   selected = new Set();
   renderCandidates();
-  document.getElementById('max-label').textContent = cfg.seats;
+  document.getElementById('sel-max').textContent = cfg.seats;
   updateSelCount();
   showScreen('screen-vote');
 }
 
-function cancelVote() {
-  showScreen('screen-intro');
-}
+function cancelVote() { showScreen('screen-intro'); }
 
-// ── CANDIDATES ────────────────────────────────────────────────────────
+/* ── RENDU CANDIDATS ─────────────────────────────────────────── */
 function renderCandidates() {
   const grid = document.getElementById('candidates-grid');
   grid.innerHTML = '';
@@ -400,7 +299,9 @@ function renderCandidates() {
     const div = document.createElement('div');
     div.className = 'candidate-card';
     div.id = 'card-' + c.id;
-    div.onclick = () => toggleCandidate(c.id);
+    div.setAttribute('role', 'button');
+    div.setAttribute('aria-label', c.name);
+    div.onclick = () => toggle(c.id);
     div.innerHTML = `
       <div class="check-mark">✓</div>
       <img class="candidate-photo" src="${c.photo}" alt="${c.name}"
@@ -412,24 +313,17 @@ function renderCandidates() {
   });
 }
 
-function toggleCandidate(id) {
+function toggle(id) {
   if (selected.has(id)) {
     selected.delete(id);
   } else {
-    if (selected.size >= cfg.seats) {
-      // flash max
-      document.getElementById('submit-btn').style.animation = 'shake 0.3s';
-      setTimeout(() => document.getElementById('submit-btn').style.animation = '', 300);
-      return;
-    }
+    if (selected.size >= cfg.seats) return;
     selected.add(id);
   }
-  const card = document.getElementById('card-' + id);
-  card.classList.toggle('selected', selected.has(id));
-  // disable others if max reached
+  document.getElementById('card-' + id).classList.toggle('selected', selected.has(id));
   cfg.candidates.forEach(c => {
     const el = document.getElementById('card-' + c.id);
-    if (el) el.classList.toggle('disabled-card', !selected.has(c.id) && selected.size >= cfg.seats);
+    if (el) el.classList.toggle('maxed', !selected.has(c.id) && selected.size >= cfg.seats);
   });
   updateSelCount();
   renderRecap();
@@ -437,66 +331,53 @@ function toggleCandidate(id) {
 
 function updateSelCount() {
   document.getElementById('sel-count').textContent = selected.size;
-  document.getElementById('submit-btn').disabled = selected.size === 0;
+  document.getElementById('submit-btn').disabled   = selected.size === 0;
 }
 
 function renderRecap() {
   const list = document.getElementById('recap-list');
   list.innerHTML = '';
   selected.forEach(id => {
-    const c = cfg.candidates.find(x => x.id === id);
-    if (!c) return;
-    const pill = document.createElement('div');
-    pill.className = 'recap-pill';
-    pill.innerHTML = `<img src="${c.photo}" alt="${c.name}"><span>${c.name}</span>`;
-    list.appendChild(pill);
+    const c = cfg.candidates.find(x => x.id === id); if (!c) return;
+    const p = document.createElement('div');
+    p.className = 'recap-pill';
+    p.innerHTML = `<img src="${c.photo}" alt="${c.name}"><span>${c.name}</span>`;
+    list.appendChild(p);
   });
 }
 
-// ── CONFIRMATION ─────────────────────────────────────────────────────
-function confirmSubmit() {
-  const choices = document.getElementById('confirm-choices');
-  choices.innerHTML = '';
+/* ── CONFIRMATION ────────────────────────────────────────────── */
+function goConfirm() {
+  const box = document.getElementById('confirm-choices');
+  box.innerHTML = '';
   selected.forEach(id => {
-    const c = cfg.candidates.find(x => x.id === id);
-    if (!c) return;
-    const pill = document.createElement('div');
-    pill.className = 'recap-pill';
-    pill.innerHTML = `<img src="${c.photo}" alt="${c.name}" style="width:28px;height:28px;border-radius:50%;object-fit:cover"><span>${c.name} – ${c.role}</span>`;
-    choices.appendChild(pill);
+    const c = cfg.candidates.find(x => x.id === id); if (!c) return;
+    const p = document.createElement('div');
+    p.className = 'recap-pill';
+    p.innerHTML = `<img src="${c.photo}" alt="${c.name}" style="width:26px;height:26px;border-radius:50%;object-fit:cover">
+                   <span>${c.name} — ${c.role}</span>`;
+    box.appendChild(p);
   });
   showScreen('screen-confirm');
 }
+function cancelConfirm() { showScreen('screen-vote'); }
 
-function cancelConfirm() {
-  showScreen('screen-vote');
-}
-
-async function submitVote() {
-  selected.forEach(id => {
-    voteData.votes[id] = (voteData.votes[id] || 0) + 1;
-  });
+function submitVote() {
+  selected.forEach(id => { voteData.votes[id] = (voteData.votes[id]||0) + 1; });
   voteData.voterCount++;
-  saveVotes();
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(voteData)); } catch(e){}
   showScreen('screen-done');
 }
 
 function nextVoter() {
   updateIntro();
-  if (voteData.voterCount >= cfg.totalVoters) {
-    showScreen('screen-closed');
-  } else {
-    showScreen('screen-intro');
-  }
+  showScreen(voteData.voterCount >= cfg.totalVoters ? 'screen-closed' : 'screen-intro');
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────
+/* ── INIT ────────────────────────────────────────────────────── */
 loadData();
 updateIntro();
-if (voteData.voterCount >= cfg.totalVoters) {
-  showScreen('screen-closed');
-}
+if (voteData.voterCount >= cfg.totalVoters) showScreen('screen-closed');
 </script>
-
 </body>
 </html>
